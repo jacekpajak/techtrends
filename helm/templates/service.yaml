@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: {{ .Values.image.repository }}
+  name: {{ .Values.image.repository }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  ports:
+  - name: service-port
+    port: {{ .Values.service.port }}
+    protocol: {{ .Values.service.protocol }}
+    targetPort: {{ .Values.service.targetPort }}
+  selector:
+    app: {{ .Values.image.repository }}
+  type: {{ .Values.service.type }}
+status:
+  loadBalancer: {}
