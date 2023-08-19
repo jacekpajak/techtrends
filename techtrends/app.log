@@ -7,3 +7,26 @@ INFO:werkzeug:127.0.0.1 - - [14/Aug/2023 19:20:14] "[36mGET /static/css/main.cs
 INFO:app:2020 CNCF Annual Report retrieved!
 INFO:werkzeug:127.0.0.1 - - [14/Aug/2023 19:20:16] "GET /1 HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [14/Aug/2023 19:20:17] "[36mGET /static/css/main.css HTTP/1.1[0m" 304 -
+WARNING:werkzeug: * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+INFO:werkzeug: * Running on http://192.168.1.33:3111/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:00] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:00] "GET /static/css/main.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:04] "GET /healthz HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:23] "GET /healthz HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:24] "GET /healthz HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:29] "GET /healthz HTTP/1.1" 200 -
+WARNING:werkzeug: * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+INFO:werkzeug: * Running on http://192.168.1.33:3111/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:19:36] "GET /healthz HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:20:00] "GET /healthz HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:49:39] "GET /healthz HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:49:41] "GET /healthz HTTP/1.1" 200 -
+WARNING:werkzeug: * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+INFO:werkzeug: * Running on http://192.168.1.33:3111/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:49:44] "[35m[1mGET /healthz HTTP/1.1[0m" 500 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:49:48] "[35m[1mGET /healthz HTTP/1.1[0m" 500 -
+INFO:werkzeug:127.0.0.1 - - [19/Aug/2023 16:50:13] "GET /healthz HTTP/1.1" 200 -

@@ -5,7 +5,8 @@ from flask import Flask, jsonify, json, render_template, request, url_for, redir
 from werkzeug.exceptions import abort
 
 database_connections = 0
-logging.basicConfig(filename='app.log',level=logging.INFO)
+logging.basicConfig(filename='app.log', level=logging.INFO)
+
 
 def register_database_connection(f):
     def wrapper(*args, **kwargs):
@@ -14,19 +15,23 @@ def register_database_connection(f):
         database_connections += 1
 
         return f(*args, **kwargs)
+
     return wrapper
+
 
 # Custom decorator to run a function after the decorated route
 def deregister_database_connection(f):
     def wrapper(*args, **kwargs):
         global database_connections
 
-        response = f(*args, **kwargs)        
+        response = f(*args, **kwargs)
 
         database_connections -= 1
 
         return response
+
     return wrapper
+
 
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
@@ -36,19 +41,54 @@ def get_db_connection():
 
     return connection
 
+
 # Function to get a post using its ID
 def get_post(post_id):
     connection = get_db_connection()
     post = connection.execute('SELECT * FROM posts WHERE id = ?',
-                        (post_id,)).fetchone()
+                              (post_id,)).fetchone()
     connection.close()
     return post
+
+
+def database_accessible():
+    connection_up = False
+
+    try:
+        connection = get_db_connection()
+        connection.close()
+        connection_up = True
+    except sqlite3.Error:
+        pass
+
+    return connection_up
+
+
+def posts_table_exists():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # Query the sqlite_master table to check if the table exists
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='posts'")
+        result = cursor.fetchone()
+
+        connection.close()
+
+        if result is None:
+            return False
+        else:
+            return True
+    except sqlite3.Error:
+        return False
+
 
 # Define the Flask application
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
-# Define the main route of the web application 
+
+# Define the main route of the web application
 @app.route('/', endpoint='index')
 @register_database_connection
 @deregister_database_connection
@@ -58,7 +98,8 @@ def index():
     connection.close()
     return render_template('index.html', posts=posts)
 
-# Define how each individual article is rendered 
+
+# Define how each individual article is rendered
 # If the post ID is not found a 404 page is shown
 @app.route('/<int:post_id>', endpoint='post')
 @register_database_connection
@@ -66,12 +107,13 @@ def index():
 def post(post_id):
     post = get_post(post_id)
     if post is None:
-      app.logger.info(f'Failed to retrieve: {post_id}!')
-      return render_template('404.html'), 404
+        app.logger.info(f'Failed to retrieve: {post_id}!')
+        return render_template('404.html'), 404
     else:
-      post_title = post['title']
-      app.logger.info(f'{post_title} retrieved!')      
-      return render_template('post.html', post=post)
+        post_title = post['title']
+        app.logger.info(f'{post_title} retrieved!')
+        return render_template('post.html', post=post)
+
 
 # Define the About Us page
 @app.route('/about')
@@ -79,7 +121,8 @@ def about():
     app.logger.info(f'About Us page retrieved.')
     return render_template('about.html')
 
-# Define the post creation functionality 
+
+# Define the post creation functionality
 @app.route('/create', methods=('GET', 'POST'), endpoint='create')
 @register_database_connection
 @deregister_database_connection
@@ -93,7 +136,7 @@ def create():
         else:
             connection = get_db_connection()
             connection.execute('INSERT INTO posts (title, content) VALUES (?, ?)',
-                         (title, content))
+                               (title, content))
             connection.commit()
             connection.close()
 
@@ -103,15 +146,24 @@ def create():
 
     return render_template('create.html')
 
+
 @app.route('/healthz')
 def healthcheck():
-    response = app.response_class(
-            response=json.dumps({"result":"OK - healthy"}),
+    if database_accessible() and posts_table_exists():
+        response = app.response_class(
+            response=json.dumps({"result": "OK - healthy"}),
             status=200,
             mimetype='application/json'
-    )
-    
+        )
+    else:
+        response = app.response_class(
+            response=json.dumps({"result": "ERROR - unhealthy"}),
+            status=500,
+            mimetype='application/json'
+        )
+
     return response
+
 
 @app.route('/metrics')
 def metrics():
@@ -121,16 +173,17 @@ def metrics():
     result = connection.execute('SELECT COUNT(*) as total_count FROM posts').fetchone()
 
     response = app.response_class(
-            response=json.dumps({
-                    "db_connection_count": database_connections,
-                    "post_count": result['total_count']
-                }),
-            status=200,
-            mimetype='application/json'
+        response=json.dumps({
+            "db_connection_count": database_connections,
+            "post_count": result['total_count']
+        }),
+        status=200,
+        mimetype='application/json'
     )
-    
+
     return response
+
 
 # start the application on port 3111
 if __name__ == "__main__":
-   app.run(host='0.0.0.0', port='3111')
+    app.run(host='0.0.0.0', port='3111')
