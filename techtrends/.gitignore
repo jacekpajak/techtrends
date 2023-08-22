@@ -1,3 +1,4 @@
 /myenv/
 ./.vagrant/
-./techtrends/database.db
+./database.db
+/database.db

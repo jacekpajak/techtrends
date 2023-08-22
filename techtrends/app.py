@@ -5,8 +5,23 @@ from flask import Flask, jsonify, json, render_template, request, url_for, redir
 from werkzeug.exceptions import abort
 
 database_connections = 0
-logging.basicConfig(filename='app.log', level=logging.INFO)
 
+logger = logging.getLogger('app_logger')
+log_level = logging.DEBUG
+
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+logger.setLevel(log_level)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(log_level)
+console_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler('app.log')
+file_handler.setLevel(log_level)
+file_handler.setFormatter(formatter)
+
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 
 def register_database_connection(f):
     def wrapper(*args, **kwargs):
@@ -15,20 +30,6 @@ def register_database_connection(f):
         database_connections += 1
 
         return f(*args, **kwargs)
-
-    return wrapper
-
-
-# Custom decorator to run a function after the decorated route
-def deregister_database_connection(f):
-    def wrapper(*args, **kwargs):
-        global database_connections
-
-        response = f(*args, **kwargs)
-
-        database_connections -= 1
-
-        return response
 
     return wrapper
 
@@ -87,11 +88,10 @@ def posts_table_exists():
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
-
+app.logger = logger
 # Define the main route of the web application
 @app.route('/', endpoint='index')
 @register_database_connection
-@deregister_database_connection
 def index():
     connection = get_db_connection()
     posts = connection.execute('SELECT * FROM posts').fetchall()
@@ -103,7 +103,6 @@ def index():
 # If the post ID is not found a 404 page is shown
 @app.route('/<int:post_id>', endpoint='post')
 @register_database_connection
-@deregister_database_connection
 def post(post_id):
     post = get_post(post_id)
     if post is None:
@@ -125,7 +124,6 @@ def about():
 # Define the post creation functionality
 @app.route('/create', methods=('GET', 'POST'), endpoint='create')
 @register_database_connection
-@deregister_database_connection
 def create():
     if request.method == 'POST':
         title = request.form['title']

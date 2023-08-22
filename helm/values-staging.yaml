@@ -1,7 +1,7 @@
 namespace:
   name: staging
 service:
-  port: 4111
+  port: 5111
 replicaCount: 3
 resources:
   requests:
