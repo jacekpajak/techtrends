@@ -1,27 +1,20 @@
 import sqlite3
 import logging
+import sys
 
 from flask import Flask, jsonify, json, render_template, request, url_for, redirect, flash
 from werkzeug.exceptions import abort
 
 database_connections = 0
 
-logger = logging.getLogger('app_logger')
-log_level = logging.DEBUG
+stdout_handler = logging.StreamHandler(sys.stdout)
+stderr_handler = logging.StreamHandler(sys.stderr)
 
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-logger.setLevel(log_level)
+handlers = [stderr_handler, stdout_handler]
+format_output = '%(asctime)s - %(levelname)s - %(message)s'
 
-console_handler = logging.StreamHandler()
-console_handler.setLevel(log_level)
-console_handler.setFormatter(formatter)
+logging.basicConfig(format=format_output, level=logging.DEBUG, handlers=handlers)
 
-file_handler = logging.FileHandler('app.log')
-file_handler.setLevel(log_level)
-file_handler.setFormatter(formatter)
-
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
 
 def register_database_connection(f):
     def wrapper(*args, **kwargs):
@@ -88,7 +81,6 @@ def posts_table_exists():
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
-app.logger = logger
 # Define the main route of the web application
 @app.route('/', endpoint='index')
 @register_database_connection
